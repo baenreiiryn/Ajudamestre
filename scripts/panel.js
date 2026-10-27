@@ -2,6 +2,7 @@ import {ID,escapeHTML} from './utils.js';
 import {runAgent} from './agent.js';
 import {TOOL_DEFINITIONS} from './tools.js';
 import {permissionRows} from './settings.js';
+import {beginLogin} from './login.js';
 const {ApplicationV2,HandlebarsApplicationMixin,DialogV2}=foundry.applications.api;
 export class AssistantPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS={id:'ajudamestre-panel',classes:['ajudamestre'],window:{title:'Ajudamestre',icon:'fas fa-hat-wizard',resizable:true},position:{width:620,height:740}};
@@ -55,18 +56,26 @@ export class AssistantPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 export class AssistantConfiguration extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS={id:'ajudamestre-config',classes:['ajudamestre'],window:{title:'Ajudamestre — conexão e permissões',resizable:true},position:{width:640,height:750}};
   static PARTS={body:{template:'modules/ajudamestre/templates/config.hbs'}};
-  constructor({panel,bridge,...options}={}){super(options);this.panel=panel??game.modules.get(ID)?.api?.panel;this.bridge=bridge??this.panel.bridge;this.notice='';}
+  constructor({panel,bridge,...options}={}){super(options);this.panel=panel??game.modules.get(ID)?.api?.panel;this.bridge=bridge??this.panel.bridge;this.notice='';this.authUrl=null;}
   _canRender(){return game.user?.isGM;}
-  async _prepareContext(){return {url:this.bridge.config.url,pairingKey:this.bridge.config.pairingKey,permissions:permissionRows(),notice:this.notice,accounts:this.panel.connection?.accounts?.map(a=>({...a,selected:a.id===this.panel.connection.activeId})),models:this.panel.models.map(m=>({...m,selected:m.slug===this.bridge.config.model}))};}
+  async _prepareContext(){return {url:this.bridge.config.url,pairingKey:this.bridge.config.pairingKey,permissions:permissionRows(),notice:this.notice,authUrl:this.authUrl,accounts:this.panel.connection?.accounts?.map(a=>({...a,selected:a.id===this.panel.connection.activeId})),models:this.panel.models.map(m=>({...m,selected:m.slug===this.bridge.config.model}))};}
   saveConnection(){const el=this.element;this.bridge.save({url:el.querySelector('[name="url"]').value,pairingKey:el.querySelector('[name="pairingKey"]').value.trim(),model:el.querySelector('[name="model"]').value});}
+  async startLogin(options) {
+    if(this.loginPending)return;
+    this.saveConnection();this.authUrl=null;this.loginPending=true;
+    const buttons=[...this.element.querySelectorAll('[data-action="connect"], [data-action="new-account"]')];
+    buttons.forEach(b=>{b.disabled=true;});
+    const notice=this.element.querySelector('[role="status"]');if(notice)notice.textContent='Preparando o login pelo conector local…';
+    try {
+      const result=await beginLogin({bridge:this.bridge,options});this.authUrl=result.url;
+      this.notice=result.popupOpened?'Conclua o login na aba aberta e depois clique em Atualizar conexão.':'O navegador bloqueou a abertura automática. Clique em Abrir login do ChatGPT abaixo.';
+    }finally{this.loginPending=false;buttons.forEach(b=>{b.disabled=false;});}
+  }
   _onRender(context,options){super._onRender(context,options);const el=this.element;
-    const action=(name,fn)=>{el.querySelector(`[data-action="${name}"]`).onclick=async()=>{try{await fn();}catch(error){this.notice=error.message;}if(this.rendered)this.render();};};
+    const action=(name,fn)=>{el.querySelector(`[data-action="${name}"]`).onclick=async()=>{try{await fn();}catch(error){this.notice=error.message;ui.notifications.error(error.message);}if(this.rendered)this.render();};};
     el.querySelector('form').onsubmit=async e=>{e.preventDefault();try{this.saveConnection();const permissions=Object.fromEntries([...el.querySelectorAll('[data-permission]')].map(x=>[x.dataset.permission,x.value]));await game.settings.set(ID,'permissions',permissions);this.notice='Configurações salvas.';await this.panel.refresh();this.render();}catch(error){ui.notifications.error(error.message);}};
-    action('connect',async()=>{
-      this.saveConnection();const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;
-      try{const {url}=await this.bridge.call('/auth/start',{profileId:el.querySelector('[name="account"]').value||undefined});if(popup)popup.location.href=url;else window.open(url,'_blank','noopener');this.notice='Conclua o login e depois clique em Atualizar conexão.';}catch(error){popup?.close();throw error;}
-    });
-    action('new-account',async()=>{this.saveConnection();const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;try{const {url}=await this.bridge.call('/auth/start',{newAccount:true});if(popup)popup.location.href=url;else window.open(url,'_blank','noopener');this.notice='Conclua o login da nova conta.';}catch(error){popup?.close();throw error;}});
+    action('connect',()=>this.startLogin({profileId:el.querySelector('[name="account"]').value||undefined}));
+    action('new-account',()=>this.startLogin({newAccount:true}));
     action('refresh',async()=>{this.saveConnection();await this.panel.refresh();this.notice=this.panel.status;});
     action('select',async()=>{this.saveConnection();await this.bridge.call('/auth/select',{id:el.querySelector('[name="account"]').value});await this.panel.refresh();this.notice=this.panel.status;});
     action('logout',async()=>{const result=await this.bridge.call('/auth/logout',{});await this.panel.refresh();this.notice=result.message;});

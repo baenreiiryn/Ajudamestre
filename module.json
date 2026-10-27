@@ -1,11 +1,11 @@
 {
   "id":"ajudamestre", "title":"Ajudamestre", "description":"Assistente privado do mestre com ChatGPT: documentos, cenas, compêndios, traduções livres, módulos e macros. Conector local necessário.",
-  "version":"0.1.0", "authors":[{"name":"baenreiiryn","url":"https://github.com/baenreiiryn"}],
+  "version":"0.1.1", "authors":[{"name":"baenreiiryn","url":"https://github.com/baenreiiryn"}],
   "compatibility":{"minimum":"13","maximum":"14"},
   "esmodules":["scripts/main.js"], "styles":["styles/ajudamestre.css"],
   "url":"https://github.com/baenreiiryn/Ajudamestre",
   "manifest":"https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json",
-  "download":"https://github.com/baenreiiryn/Ajudamestre/releases/download/v0.1.0/ajudamestre.zip",
+  "download":"https://github.com/baenreiiryn/Ajudamestre/releases/download/v0.1.1/ajudamestre.zip",
   "relationships":{"systems":[{"id":"dnd5e","type":"system"},{"id":"daggerheart","type":"system"}]},
   "license":"LICENSE", "readme":"README.md"
 }

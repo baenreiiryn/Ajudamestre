@@ -10,3 +10,7 @@
 - A tentativa de iniciar o teste visual simulado com Playwright encontrou ausência do binário Chromium neste ambiente; o teste visual não foi executado. Nenhuma configuração do navegador do usuário foi alterada.
 
 Consulte manual-validation.md para os passos pendentes.
+
+## Correção 0.1.1
+
+31 testes passando; regressão do login cobre falha do conector sem abrir aba vazia, popup bloqueado com link manual e rejeição de endereço de autorização inválido. Falhas de pareamento/rede passam a ser visíveis na interface. Login real pelo navegador do usuário continua pendente.

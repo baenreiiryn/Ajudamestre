@@ -1,11 +1,12 @@
 <form class="am-config">
-  <h2>Conexão local</h2><p>Inicie o conector com <code>npm start</code> na pasta do projeto. Cole o código exibido no terminal. As credenciais do ChatGPT ficam no conector.</p>
+  <p class="am-status" role="status">{{notice}}</p>
+  {{#if authUrl}}<p><a href="{{authUrl}}" target="_blank" rel="noopener noreferrer">Abrir login do ChatGPT</a></p>{{/if}}
+  <h2>Conexão local</h2><p>Inicie o conector com <code>node companion/server.mjs</code> na pasta do projeto. Cole o código exibido no terminal. As credenciais do ChatGPT ficam no conector.</p>
   <label>Endereço do conector<input type="url" name="url" value="{{url}}" required></label><label>Código de pareamento<input type="password" name="pairingKey" value="{{pairingKey}}" autocomplete="off" required></label>
   <div class="am-toolbar"><button type="button" data-action="connect">Continue with ChatGPT</button><button type="button" data-action="new-account">Adicionar conta</button><button type="button" data-action="refresh">Atualizar conexão</button></div>
   <label>Conta e workspace<select name="account"><option value="">Selecione uma conta</option>{{#each accounts}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
   <div class="am-toolbar"><button type="button" data-action="select">Usar conta selecionada</button><button type="button" data-action="logout">Desconectar conta ativa</button><a href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener noreferrer">Gerenciar uso do plano</a></div>
   <label>Modelo disponível na conta<select name="model">{{#each models}}<option value="{{slug}}" {{#if selected}}selected{{/if}}>{{display_name}}</option>{{/each}}</select></label>
-  <p class="am-status" role="status">{{notice}}</p>
   <h2>Permissões</h2><p>Perfil inicial: <strong>Assistente do mestre</strong>. Criar e editar é permitido. Ações que pedem confirmação podem ser liberadas ou bloqueadas abaixo.</p><p>Executar macros e APIs de módulos pode modificar dados além das permissões das outras ferramentas. O código da macro é mostrado na confirmação. Permitir diretamente concede esse acesso amplo.</p>
   <div class="am-permissions">{{#each permissions}}<label><span>{{label}}</span><select data-permission="{{key}}">{{#each modes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/each}}</div>
   <footer class="am-toolbar"><button type="button" data-action="reset">Restaurar perfil padrão</button><button type="submit">Salvar configurações</button></footer>

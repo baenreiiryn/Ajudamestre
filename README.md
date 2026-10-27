@@ -2,11 +2,11 @@
 
 Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **Daggerheart**. Converse em português para criar, editar e organizar seu mundo, traduzir compêndios livremente e preparar macros.
 
-**Versão 0.1.0 — alpha.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
+**Versão 0.1.1 — alpha.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
 
 ## Instalar
 
-1. Baixe `ajudamestre.zip` na [versão v0.1.0](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.1.0), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
+1. Baixe `ajudamestre.zip` na [versão v0.1.1](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.1.1), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
 2. Alternativamente, após a publicação dos arquivos da versão, instale pelo manifesto: `https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json`.
 3. Ative **Ajudamestre** em Gerenciar módulos dentro de um mundo D&D 5e ou Daggerheart.
 4. O botão **Ajudamestre** aparece somente para o mestre. Também há Configurações → Configurações do módulo → Ajudamestre → Conexão e permissões.
@@ -36,9 +36,10 @@ Pode repetir `--origin`. Nunca abra a porta do conector para a internet: ele esc
 
 1. Copie o código de pareamento mostrado no terminal para a configuração do módulo. Esse código autoriza acesso local ao conector; mantenha-o privado.
 2. Clique **Continue with ChatGPT**, escolha a conta/workspace e autorize o uso do plano.
-3. Volte ao Foundry e clique **Atualizar conexão**.
-4. Selecione um modelo retornado para sua conta e salve.
-5. Mantenha o conector aberto enquanto usar a IA.
+3. Se o navegador bloquear a abertura automática, clique no link **Abrir login do ChatGPT** exibido no módulo. Se houver erro de conexão, ele aparece no topo da configuração e em uma notificação; confira pareamento, origem autorizada e permissão de rede local.
+4. Volte ao Foundry e clique **Atualizar conexão**.
+5. Selecione um modelo retornado para sua conta e salve.
+6. Mantenha o conector aberto enquanto usar a IA.
 
 O login segue o [fluxo oficial SIWC para projetos OSS](https://developers.openai.com/siwc/token-sharing-open-source/sign-in). A elegibilidade da conta, os modelos e os limites são determinados pela OpenAI; entrar na conta não garante autorização de uso do plano. Não há troca automática para API paga. Você pode adicionar contas, selecionar registros separados e desconectar. Consulte [uso do plano](https://chatgpt.com/settings/usage).
 
