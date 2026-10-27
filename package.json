@@ -1,5 +1,5 @@
 {
-  "name": "ajudamestre", "version": "0.1.1", "private": true, "type": "module",
+  "name": "ajudamestre", "version": "0.1.2", "private": true, "type": "module",
   "engines": { "node": ">=22" },
   "scripts": { "start": "node companion/server.mjs", "test": "node --test tests/*.test.mjs", "check": "node tools/check.mjs", "package": "node tools/package.mjs" }
 }

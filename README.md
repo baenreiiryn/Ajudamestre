@@ -2,11 +2,11 @@
 
 Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **Daggerheart**. Converse em português para criar, editar e organizar seu mundo, traduzir compêndios livremente e preparar macros.
 
-**Versão 0.1.1 — alpha.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
+**Versão 0.1.2 — alpha.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
 
 ## Instalar
 
-1. Baixe `ajudamestre.zip` na [versão v0.1.1](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.1.1), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
+1. Baixe `ajudamestre.zip` na [versão v0.1.2](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.1.2), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
 2. Alternativamente, após a publicação dos arquivos da versão, instale pelo manifesto: `https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json`.
 3. Ative **Ajudamestre** em Gerenciar módulos dentro de um mundo D&D 5e ou Daggerheart.
 4. O botão **Ajudamestre** aparece somente para o mestre. Também há Configurações → Configurações do módulo → Ajudamestre → Conexão e permissões.
@@ -46,6 +46,16 @@ O login segue o [fluxo oficial SIWC para projetos OSS](https://developers.openai
 Navegadores podem pedir permissão de rede local, sobretudo se o Foundry usa HTTPS. Se a conexão for bloqueada, verifique essa autorização e a origem configurada. Não desative a segurança do navegador. O conector não inicia login automaticamente nem reutiliza credenciais do Codex ou de outros aplicativos.
 
 Dados locais do conector: `~/.ajudamestre/credentials.json`, com host estável, registros por conta e tokens. A pasta recebe permissões restritas (ACL no Windows, 0700/0600 no Unix), e o arquivo é substituído atomicamente. Não copie para o diretório público do Foundry nem para Git. Um lock impede dois conectores de renovar os mesmos tokens simultaneamente; após encerramento forçado, remova `~/.ajudamestre/running.lock` somente depois de verificar que o processo anterior terminou.
+
+## Abrir o assistente para um documento
+
+Como mestre, abra a janela de um item, ficha de ator/NPC, diário, página de diário, configuração de pasta, cena, tabela ou outro documento suportado e clique no ícone de chapéu do **Ajudamestre** no cabeçalho. Ele fica visível diretamente na barra superior, inclusive em janelas ApplicationV1 e ApplicationV2. Jogadores não recebem o botão.
+
+O painel abre mostrando **Alvo selecionado**, nome e UUID. Basta pedir, por exemplo, “traduza esta descrição” ou “renomeie para Espada da Aurora”. O pedido leva o identificador exato; o assistente é orientado a ler esse documento diretamente, sem procurar por nome. Entradas de compêndios e itens embutidos preservam seu UUID completo. Em uma janela de compêndio, o alvo é o próprio pack.
+
+Clique no X do alvo para voltar à conversa geral. Clique no ícone de outra janela para trocar de alvo; a troca fica bloqueada enquanto há uma tarefa em execução. Abrir o assistente não envia uma mensagem nem modifica dados automaticamente. Modificações ainda obedecem às permissões configuradas.
+
+Integrações também podem usar `game.modules.get('ajudamestre').api.openForDocument(documentoOuUuid)` para abrir o painel com um alvo.
 
 ## Ferramentas
 

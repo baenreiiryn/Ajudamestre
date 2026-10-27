@@ -16,3 +16,11 @@ Execute em mundos de teste, um D&D 5e e um Daggerheart, nas versões Foundry 13/
 10. Desfazer edição/criação; edição manual posterior gera conflito. Reabrir e verificar histórico. Exclusões não têm restauração automática.
 11. Parar conector/revogar acesso: erro sem repetição automática de escritas. Verificar permissão de rede local do navegador, inclusive origem HTTPS.
 12. Registrar versões e erros de console. Só preencher compatibility.verified após essa validação.
+
+## Seleção contextual (0.1.2)
+
+- Nos mundos D&D e Daggerheart, abra item, ator, diário/página, FolderConfig, cena e compêndio; conferir ícone visível no cabeçalho, fora do menu de controles.
+- Clique no ícone, confira nome/UUID do alvo e peça uma alteração pequena. Conferir que o executor lê o UUID escolhido e respeita permissões.
+- Testar item embutido de ator e item de compêndio com mesmo nome de outro documento do mundo. Apenas o UUID escolhido deve ser alterado.
+- Reabrir/atualizar ficha: sem ícones duplicados. Trocar alvo e remover pelo X. Durante tarefa, a troca deve ser recusada.
+- Jogador não vê ícone; ao perder papel de mestre, clique antigo não abre o assistente.

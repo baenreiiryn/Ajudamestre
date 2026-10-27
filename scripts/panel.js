@@ -3,25 +3,34 @@ import {runAgent} from './agent.js';
 import {TOOL_DEFINITIONS} from './tools.js';
 import {permissionRows} from './settings.js';
 import {beginLogin} from './login.js';
+import {normalizeTarget,sameTarget,targetPrompt} from './target.js';
 const {ApplicationV2,HandlebarsApplicationMixin,DialogV2}=foundry.applications.api;
 export class AssistantPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS={id:'ajudamestre-panel',classes:['ajudamestre'],window:{title:'Ajudamestre',icon:'fas fa-hat-wizard',resizable:true},position:{width:620,height:740}};
   static PARTS={body:{template:'modules/ajudamestre/templates/panel.hbs'}};
-  constructor({bridge,executor,...options}){super(options);this.bridge=bridge;this.executor=executor;this.messages=[];this.history=[];this.busy=false;this.status='Conecte sua conta nas configurações.';this.connection=null;this.models=[];this.draft='';}
+  constructor({bridge,executor,...options}){super(options);this.bridge=bridge;this.executor=executor;this.messages=[];this.history=[];this.target=null;this.busy=false;this.status='Conecte sua conta nas configurações.';this.connection=null;this.models=[];this.draft='';}
   _canRender(){return game.user?.isGM;}
-  async _prepareContext(){return {messages:this.messages,busy:this.busy,status:this.status,model:this.bridge.config.model,connected:this.connection?.connected,account:this.connection?.accounts?.find(a=>a.id===this.connection.activeId)?.label};}
+  async _prepareContext(){return {messages:this.messages,busy:this.busy,status:this.status,target:this.target,model:this.bridge.config.model,connected:this.connection?.connected,account:this.connection?.accounts?.find(a=>a.id===this.connection.activeId)?.label};}
   _onRender(context,options){
     super._onRender(context,options);
     const el=this.element;
+    const clearTarget=el.querySelector('[data-action="clear-target"]');if(clearTarget)clearTarget.onclick=()=>{if(!this.busy){this.setTarget(null);this.render();}};
     el.querySelector('[data-action="settings"]').onclick=()=>this.openConfig();
     el.querySelector('[data-action="refresh"]').onclick=()=>this.refresh();
     el.querySelector('[data-action="history"]').onclick=()=>this.showHistory();
     el.querySelector('[data-action="stop"]').onclick=()=>{this.abort?.abort();this.status='Cancelando: alterações já concluídas permanecem no histórico.';this.render();};
     el.querySelector('[data-action="clear"]').onclick=async()=>{if(this.busy)return;if(await DialogV2.confirm({window:{title:'Nova conversa'},content:'Limpar a conversa? O histórico de alterações será preservado.',rejectClose:false})){this.history=[];this.messages=[];this.render();}};
-    const textarea=el.querySelector('textarea');textarea.value=this.draft;textarea.oninput=()=>{this.draft=textarea.value;};
+    const textarea=el.querySelector('textarea');textarea.value=this.draft;textarea.oninput=()=>{this.draft=textarea.value;};if(this.focusPrompt){textarea.focus();this.focusPrompt=false;}
     textarea.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.send();}};
     el.querySelector('form').onsubmit=e=>{e.preventDefault();this.send();};
     const log=el.querySelector('.am-messages');log.scrollTop=log.scrollHeight;
+  }
+  setTarget(value) {
+    if(!game.user?.isGM)throw Error('Apenas o mestre pode selecionar um alvo.');
+    const next=value===null?null:normalizeTarget(value);
+    if(value!==null&&!next)throw Error('Documento não pode ser selecionado como alvo.');
+    if(this.busy&&!sameTarget(this.target,next))throw Error('Aguarde a conclusão da tarefa em execução antes de trocar o alvo.');
+    this.target=next;this.focusPrompt=true;
   }
   openConfig(){new AssistantConfiguration({panel:this,bridge:this.bridge}).render({force:true});}
   async refresh(){
@@ -35,7 +44,7 @@ export class AssistantPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if(this.busy||!game.user?.isGM)return;
     const text=this.draft.trim();if(!text)return;
     if(!this.bridge.config.model){ui.notifications.warn('Configure a conexão e selecione um modelo.');return;}
-    this.busy=true;this.abort=new AbortController();this.messages.push({role:'user',label:'Mestre',text});this.history.push({role:'user',content:text});this.draft='';this.render();
+    this.busy=true;this.abort=new AbortController();this.messages.push({role:'user',label:'Mestre',text,targetName:this.target?.name});this.history.push({role:'user',content:targetPrompt(text,this.target)});this.draft='';this.render();
     try{
       const result=await runAgent({input:this.history,tools:TOOL_DEFINITIONS,request:r=>this.bridge.request(r),execute:(name,args)=>this.executor.execute(name,args),signal:this.abort.signal,maxSteps:game.settings.get(ID,'maxSteps'),onCheckpoint:h=>{this.history=h;},onProgress:p=>{this.status=p.type==='tool'?`Etapa ${p.step}: ${p.name}`:`Etapa ${p.step}: analisando…`;if(this.rendered)this.render();}});
       this.history=result.history;this.messages.push({role:'assistant',label:'Ajudamestre',text:result.text||'Solicitação concluída.'});this.status='Pronto.';

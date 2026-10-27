@@ -14,3 +14,7 @@ Consulte manual-validation.md para os passos pendentes.
 ## Correção 0.1.1
 
 31 testes passando; regressão do login cobre falha do conector sem abrir aba vazia, popup bloqueado com link manual e rejeição de endereço de autorização inválido. Falhas de pareamento/rede passam a ser visíveis na interface. Login real pelo navegador do usuário continua pendente.
+
+## Seleção contextual 0.1.2
+
+42 testes automatizados passando. Novos testes exercitam os hooks V1/V2, botão exclusivo do mestre, deduplicação, seleção de documento/pack, preservação de UUIDs embutidos/compêndios, troca/remoção de alvo e bloqueio durante uma tarefa. A fronteira DOM/Foundry é simulada; inspeção visual no Foundry real ainda não foi executada. A conversa recebe metadados do alvo apenas quando o mestre envia o pedido.

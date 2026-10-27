@@ -4,6 +4,8 @@ import {HistoryStore,Audit} from './history.js';
 import {FoundryTools} from './tools.js';
 import {AssistantPanel,AssistantConfiguration,confirmAction} from './panel.js';
 import {registerSettings} from './settings.js';
+import {normalizeTarget} from './target.js';
+import {registerDocumentHeaders} from './document-header.js';
 Hooks.once('init',()=>registerSettings(AssistantConfiguration));
 Hooks.once('ready',()=>{
   if(!game.user.isGM)return;
@@ -14,9 +16,11 @@ Hooks.once('ready',()=>{
   const audit=new Audit({store:new HistoryStore(scope),resolve,getClass,diff:(a,b)=>foundry.utils.diffObject(a,b,{deletionKeys:true})});
   const executor=new FoundryTools({game,canvas,resolve,getClass,confirm:confirmAction,audit});
   const panel=new AssistantPanel({bridge,executor});
-  const open=()=>{if(!game.user.isGM)return;panel.render({force:true});panel.refresh();};
-  game.modules.get(ID).api={open,panel,registerIntegration:(id,integration)=>executor.registerIntegration(id,integration)};
-  const button=document.createElement('button');button.id='ajudamestre-launcher';button.type='button';button.title='Abrir Ajudamestre';button.innerHTML='<i class="fas fa-hat-wizard" aria-hidden="true"></i> Ajudamestre';button.onclick=open;document.body.append(button);
+  const open=async({target}={})=>{if(!game.user.isGM)return;if(target)panel.setTarget(target);await panel.render({force:true});panel.bringToFront();void panel.refresh();return panel;};
+  const openForDocument=async value=>{if(!game.user.isGM)return;const target=normalizeTarget(typeof value==='string'?await resolve(value):value);if(!target)throw Error('Documento não encontrado ou não suportado.');return open({target});};
+  registerDocumentHeaders({hooks:Hooks,isGM:()=>game.user.isGM,open:openForDocument});
+  game.modules.get(ID).api={open,openForDocument,panel,registerIntegration:(id,integration)=>executor.registerIntegration(id,integration)};
+  const button=document.createElement('button');button.id='ajudamestre-launcher';button.type='button';button.title='Abrir Ajudamestre';button.innerHTML='<i class="fas fa-hat-wizard" aria-hidden="true"></i> Ajudamestre';button.onclick=()=>{void open();};document.body.append(button);
   Hooks.callAll('ajudamestreReady',game.modules.get(ID).api);
   if(!['dnd5e','daggerheart'].includes(game.system.id))ui.notifications.warn('Ajudamestre: este sistema ainda não possui adaptador específico.');
 });
