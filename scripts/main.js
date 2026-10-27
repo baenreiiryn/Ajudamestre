@@ -1,0 +1,22 @@
+import {ID} from './utils.js';
+import {BridgeClient} from './bridge.js';
+import {HistoryStore,Audit} from './history.js';
+import {FoundryTools} from './tools.js';
+import {AssistantPanel,AssistantConfiguration,confirmAction} from './panel.js';
+import {registerSettings} from './settings.js';
+Hooks.once('init',()=>registerSettings(AssistantConfiguration));
+Hooks.once('ready',()=>{
+  if(!game.user.isGM)return;
+  const scope=`${location.origin}:${game.world.id}:${game.user.id}`;
+  const bridge=new BridgeClient(scope);
+  const getClass=name=>{const cls=CONFIG[name]?.documentClass??foundry.utils.getDocumentClass?.(name)??globalThis.getDocumentClass?.(name);if(!cls)throw Error(`Classe indisponível: ${name}`);return cls;};
+  const resolve=uuid=>foundry.utils.fromUuid(uuid);
+  const audit=new Audit({store:new HistoryStore(scope),resolve,getClass,diff:(a,b)=>foundry.utils.diffObject(a,b,{deletionKeys:true})});
+  const executor=new FoundryTools({game,canvas,resolve,getClass,confirm:confirmAction,audit});
+  const panel=new AssistantPanel({bridge,executor});
+  const open=()=>{if(!game.user.isGM)return;panel.render({force:true});panel.refresh();};
+  game.modules.get(ID).api={open,panel,registerIntegration:(id,integration)=>executor.registerIntegration(id,integration)};
+  const button=document.createElement('button');button.id='ajudamestre-launcher';button.type='button';button.title='Abrir Ajudamestre';button.innerHTML='<i class="fas fa-hat-wizard" aria-hidden="true"></i> Ajudamestre';button.onclick=open;document.body.append(button);
+  Hooks.callAll('ajudamestreReady',game.modules.get(ID).api);
+  if(!['dnd5e','daggerheart'].includes(game.system.id))ui.notifications.warn('Ajudamestre: este sistema ainda não possui adaptador específico.');
+});
