@@ -1,10 +1,11 @@
 const {app,BrowserWindow,ipcMain}=require('electron');const {mkdtemp,rm,writeFile}=require('node:fs/promises');const {tmpdir}=require('node:os');const {join}=require('node:path');
-let runtime,dir,window;const assert=require('node:assert/strict');
+let runtime,dir,window;const assert=require('node:assert/strict');const {pathToFileURL}=require('node:url');const root=process.env.AM_SMOKE_ROOT||join(__dirname,'..');
 app.whenReady().then(async()=>{
  try{
-  dir=await mkdtemp(join(tmpdir(),'am-studio-smoke-'));const {startRuntime}=await import('../companion/server.mjs');runtime=await startRuntime({port:32991,vaultDir:dir});
+  dir=await mkdtemp(join(tmpdir(),'am-studio-smoke-'));const {startRuntime}=await import(pathToFileURL(join(root,'companion/server.mjs')).href);runtime=await startRuntime({port:32991,vaultDir:dir});
   ipcMain.handle('am-bootstrap',()=>({port:32991,pairingKey:runtime.pairingKey}));ipcMain.handle('am-open-external',()=>{});
-  window=new BrowserWindow({width:1440,height:1050,show:false,webPreferences:{preload:join(__dirname,'../desktop/preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  window=new BrowserWindow({width:1440,height:1050,show:false,webPreferences:{preload:join(root,'desktop/preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  if(process.env.AM_SMOKE_ROOT){const packagedRequire=require('node:module').createRequire(join(root,'package.json'));packagedRequire('@snazzah/davey');packagedRequire('@discordjs/voice');await require('node:fs/promises').access(runtime.audio.ffmpeg);assert(runtime.audio.ffmpeg.includes('app.asar.unpacked'));}
   const errors=[];window.webContents.on('console-message',event=>{if(event.level==='error')errors.push(event.message);});
   await window.loadURL('http://127.0.0.1:32991/studio/');
   await new Promise(r=>setTimeout(r,800));
