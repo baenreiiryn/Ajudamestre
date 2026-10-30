@@ -2,11 +2,11 @@
 
 Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **Daggerheart**. Converse em português para criar, editar e organizar seu mundo, traduzir compêndios livremente e preparar macros.
 
-**Versão 0.2.0 — alpha, com Audio Studio para Windows.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
+**Versão 0.2.1 — alpha, com Audio Studio para Windows.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
 
 ## Instalar
 
-1. Baixe `ajudamestre.zip` na [versão v0.2.0](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.0), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
+1. Baixe `ajudamestre.zip` na [versão v0.2.1](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.1), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
 2. Alternativamente, após a publicação dos arquivos da versão, instale pelo manifesto: `https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json`.
 3. Ative **Ajudamestre** em Gerenciar módulos dentro de um mundo D&D 5e ou Daggerheart.
 4. O botão **Ajudamestre** aparece somente para o mestre. Também há Configurações → Configurações do módulo → Ajudamestre → Conexão e permissões.
@@ -15,7 +15,7 @@ Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **
 
 O módulo roda no navegador do mestre. O conector roda **no mesmo computador desse navegador**, mesmo quando o Foundry está hospedado em outra máquina. Ele cuida de OAuth e solicitações de IA, sem compartilhar os tokens do ChatGPT com o Foundry ou jogadores.
 
-A opção recomendada no Windows é baixar **Ajudamestre-Audio-Studio-0.2.0.exe** na [release](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.0) e abrir o programa. Ele já inclui Node, FFmpeg e o conector. É portátil e ainda não tem assinatura digital. Se o conector antigo estiver aberto no terminal, encerre-o com Ctrl+C antes de abrir o aplicativo.
+A opção recomendada no Windows é baixar **Ajudamestre-Audio-Studio-0.2.1.exe** na [release](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.1) e abrir o programa. Ele já inclui Node, FFmpeg e o conector. É portátil e ainda não tem assinatura digital. Se o conector antigo estiver aberto no terminal, encerre-o com Ctrl+C antes de abrir o aplicativo.
 
 Em **Configurar**, informe o endereço do seu Foundry, por exemplo `https://foundryhidolax.duckdns.org/game`. O programa usa somente `https://foundryhidolax.duckdns.org` como origem autorizada. Mostre o código de pareamento e copie para o módulo; use `http://127.0.0.1:3210` como endereço do conector. Não encaminhe essa porta para a internet.
 
@@ -54,7 +54,7 @@ Para configurar o bot:
 3. Ative o modo de desenvolvedor do Discord, copie o ID do servidor e o ID de um canal de voz comum e salve no programa. Stage e chamadas privadas não são suportados.
 4. Clique **Entrar na call**. Só depois de aparecer **Discord na call** o mixer será transmitido. A conexão nunca é automática. **Sair** encerra o bot; o mixer pode continuar no PC. Se a conexão cair, os pads são interrompidos e é necessário reconectar pelo painel.
 
-O token fica em `~/.ajudamestre/audio/secrets.json`, com permissões restritas, e não é retornado pela API, enviado ao GPT ou incluído em pacotes. Arquivos, créditos e pacotes ficam em `~/.ajudamestre/audio/`. O aplicativo reaproveita um conector 0.2.0 compatível já aberto; fechar a janela só encerra o conector quando ela própria o iniciou.
+O token fica em `~/.ajudamestre/audio/secrets.json`, com permissões restritas, e não é retornado pela API, enviado ao GPT ou incluído em pacotes. Arquivos, créditos e pacotes ficam em `~/.ajudamestre/audio/`. O aplicativo reaproveita um conector 0.2.1 compatível já aberto; fechar a janela só encerra o conector quando ela própria o iniciou.
 
 ## Preparar pacotes com GPT
 
