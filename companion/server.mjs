@@ -4,10 +4,13 @@ import {pathToFileURL} from 'node:url';
 import {Vault} from './vault.mjs';
 import {AuthManager} from './auth.mjs';
 import {readResponse} from './protocol.mjs';
+import {join} from 'node:path';
+import {AudioService} from './audio/service.mjs';
+import {serveStudio,streamAudioState,streamMonitor} from './audio/http.mjs';
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
 const same=(a,b)=>{const x=Buffer.from(a??''),y=Buffer.from(b??'');return x.length===y.length&&timingSafeEqual(x,y);};
 async function body(req) {const chunks=[];let bytes=0;for await(const c of req){bytes+=c.length;if(bytes>12*1024*1024)throw Error('Requisição excedeu 12 MB. Inicie nova conversa.');chunks.push(c);}return JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}
-export function createBridge({auth,pairingKey,origins,fetch:fetcher=globalThis.fetch}) {
+export function createBridge({auth,pairingKey,origins,fetch:fetcher=globalThis.fetch,audio=null}) {
   let busy=false;
   return createServer(async(req,res)=>{
     const controller=new AbortController();res.on('close',()=>{if(!res.writableEnded)controller.abort();});
@@ -15,18 +18,39 @@ export function createBridge({auth,pairingKey,origins,fetch:fetcher=globalThis.f
       const port=req.socket.localPort;
       if(req.headers.host!==`127.0.0.1:${port}`){json(res,403,{error:'Host não permitido. Use 127.0.0.1.'});return;}
       const origin=req.headers.origin;
-      if(origin&&!origins.includes(origin)){json(res,403,{error:'Origem não autorizada. Inicie o conector com --origin URL_DO_FOUNDRY.'});return;}
+      if(origin&&origin!==`http://127.0.0.1:${port}`&&!origins.includes(origin)){json(res,403,{error:'Origem não autorizada. Inicie o conector com --origin URL_DO_FOUNDRY.'});return;}
       if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');}
       res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');res.setHeader('Access-Control-Allow-Headers','Authorization, Content-Type');
       res.setHeader('Access-Control-Allow-Private-Network','true');
       if(req.method==='OPTIONS'){res.writeHead(204);res.end();return;}
       const url=new URL(req.url,`http://127.0.0.1:${port}`);
+      if(req.method==='GET'&&url.pathname.startsWith('/studio')&&await serveStudio(url,res,origins))return;
       if(url.pathname==='/auth/callback'&&req.method==='GET'){
         try {const result=await auth.callback(url);res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'none'"});res.end(`<h1>Ajudamestre conectado</h1><p>${result.planEnabled?'Volte ao Foundry e clique em Atualizar conexão.':'A identidade foi conectada, mas o uso do plano não foi autorizado. Reconecte para habilitá-lo.'}</p>`);}
         catch{json(res,400,{error:'Login não concluído. Reinicie o login pelo Foundry.'});}return;
       }
       if(!same(req.headers.authorization,`Bearer ${pairingKey}`)){json(res,401,{error:'Código de pareamento ausente ou incorreto.'});return;}
+      if(audio&&url.pathname==='/audio/events'&&req.method==='GET'){streamAudioState(audio,res);return;}
+      if(audio&&url.pathname==='/audio/monitor'&&req.method==='GET'){streamMonitor(audio,res);return;}
+      if(audio&&url.pathname==='/audio/upload'&&req.method==='POST'){json(res,200,await audio.importStream(req,url.searchParams.get('name')??'audio.wav'));return;}
       const data=req.method==='POST'?await body(req):{};
+      if(audio&&url.pathname.startsWith('/audio/')){
+        const request=async payload=>{const token=await auth.accessToken();return readResponse(await fetcher('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({model:payload.model,input:payload.input,tools:payload.tools,instructions:payload.instructions,store:false,stream:true,include:['reasoning.encrypted_content']}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(300000)])}));};
+        const route=`${req.method} ${url.pathname}`;let result;
+        if(route==='GET /audio/state')result=audio.snapshot();
+        else if(route==='POST /audio/settings'){
+          if(data.foundryOrigin!==undefined){const u=new URL(data.foundryOrigin);if(!['http:','https:'].includes(u.protocol)||u.username||u.password)throw Error('Endereço do Foundry inválido.');data.foundryOrigin=u.origin;if(!origins.includes(u.origin))origins.push(u.origin);}
+          result=await audio.settings(data);
+        }
+        else if(route==='POST /audio/search')result=await audio.catalog.search(data.query,data);
+        else if(route==='POST /audio/import')result=await audio.candidate(data.candidateId);
+        else if(route==='POST /audio/build')result=audio.build(data);
+        else if(route==='POST /audio/command')result=await audio.command(data.action,data.args??{},data.commandId);
+        else if(route==='POST /audio/tool')result=await audio.tool(data.name,data.args??{});
+        else if(route==='POST /audio/assistant')result=await audio.assistant(data,request);
+        else {json(res,404,{error:'Endpoint de áudio inexistente.'});return;}
+        json(res,200,result??{ok:true});return;
+      }
       switch(`${req.method} ${url.pathname}`){
         case 'GET /status':json(res,200,await auth.status());break;
         case 'POST /auth/start':json(res,200,await auth.begin(data));break;
@@ -59,14 +83,19 @@ async function main() {
     else if(args[i]==='--port'){port=Number(args[++i]);if(!Number.isInteger(port)||port<1024||port>65535)throw Error('Porta inválida.');}
     else throw Error(`Argumento desconhecido: ${args[i]}`);
   }
-  const vault=new Vault();await vault.initialize();
-  try{
-    const data=await vault.read(),auth=new AuthManager({vault,port});
-    const server=createBridge({auth,pairingKey:data.pairingKey,origins});
-    await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);});
-    console.log(`Ajudamestre: http://127.0.0.1:${port}\nCódigo de pareamento (somente no seu navegador GM): ${data.pairingKey}\nOrigens autorizadas: ${origins.join(', ')}\nMantenha este processo aberto enquanto usar a IA.`);
-    const close=()=>{server.close();server.closeAllConnections();vault.close().finally(()=>process.exit());};
-    process.once('SIGINT',close);process.once('SIGTERM',close);
-  }catch(error){await vault.close();throw error;}
+  const runtime=await startRuntime({port,origins});
+  console.log(`Ajudamestre: http://127.0.0.1:${port}\nPainel de áudio: http://127.0.0.1:${port}/studio/\nCódigo de pareamento (somente no seu navegador GM): ${runtime.pairingKey}\nOrigens autorizadas: ${runtime.origins.join(', ')}\nMantenha este processo aberto enquanto usar a IA e o áudio.`);
+  const close=()=>runtime.close().finally(()=>process.exit());process.once('SIGINT',close);process.once('SIGTERM',close);
+}
+export async function startRuntime({port=3210,origins=['http://localhost:30000','http://127.0.0.1:30000'],vaultDir}={}) {
+ const vault=new Vault(vaultDir);await vault.initialize();let audio;
+ try {
+  const data=await vault.read(),auth=new AuthManager({vault,port});audio=await AudioService.create(join(vault.dir,'audio'));
+  const allowed=[...new Set([...origins,...(audio.store.data.settings.foundryOrigin?[audio.store.data.settings.foundryOrigin]:[])])];
+  const server=createBridge({auth,pairingKey:data.pairingKey,origins:allowed,audio});
+  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);});
+  let closing=false;
+  return {server,auth,audio,port,origins:allowed,pairingKey:data.pairingKey,close:async()=>{if(closing)return;closing=true;server.closeAllConnections();await new Promise(r=>server.close(r));await audio.close();await vault.close();}};
+ }catch(error){await audio?.close();await vault.close();throw error;}
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href)main().catch(error=>{console.error(error.message);process.exitCode=1;});

@@ -1,4 +1,5 @@
 import {authorize} from './policy.js';
+import {AUDIO_TOOL_DEFINITIONS} from './audio-tools.js';
 import {ID,summary,serialize,scrub,assertSafe,sanitizeUpdate,escapeHTML,clone,validateArguments,getPath} from './utils.js';
 import {translationFields,describeSchema} from './adapters.js';
 import {protect,validateTranslation} from './translation.js';
@@ -7,6 +8,7 @@ const ROOTS=['Actor','Item','JournalEntry','Scene','RollTable','Folder','Macro',
 const str={type:'string'}, obj={type:'object',additionalProperties:true}, num={type:'integer',minimum:0};
 const descriptor=(name,description,properties={},required=[])=>({type:'function',name,description,parameters:{type:'object',properties,required,additionalProperties:false},strict:false});
 export const TOOL_DEFINITIONS=[
+ ...AUDIO_TOOL_DEFINITIONS,
  descriptor('world_context','Sistema, versões, tipos de documentos, cena ativa e tokens selecionados.'),
  descriptor('inspect_schema','Consultar schema de um tipo/subtipo antes de criar ou modificar dados.',{documentType:str,subtype:str},['documentType']),
  descriptor('list_documents','Buscar documentos do mundo ou entradas de um compêndio. Retorna UUIDs, total e paginação.',{documentType:str,pack:str,query:str,offset:num,limit:{type:'integer',minimum:1,maximum:50}}),
@@ -81,6 +83,7 @@ export class FoundryTools {
   async execute(name,args={}) {
     await this.permit('read',`Consultar: ${name}`);assertSafe(args);
     const definition=TOOL_DEFINITIONS.find(t=>t.name===name);if(!definition)throw Error('Ferramenta desconhecida.');validateArguments(args,definition.parameters);
+    if(AUDIO_TOOL_DEFINITIONS.some(t=>t.name===name)){await this.permit('audio',`Áudio: ${name}`);if(!this.audio)throw Error('Conector de áudio não configurado.');return this.audio.call(name,args);}
     const g=this.game;
     switch(name) {
       case 'world_context': return {world:g.world.id,foundry:g.version,system:{id:g.system.id,version:g.system.version,title:g.system.title},documentTypes:g.system.documentTypes,scene:this.canvas?.scene?.uuid,selectedTokens:this.canvas?.tokens?.controlled?.map(t=>summary(t.document))??[],supported:['dnd5e','daggerheart'].includes(g.system.id)};

@@ -15,5 +15,5 @@ export async function archive(paths,target){
 }
 await mkdir('dist',{recursive:true});
 await archive(['module.json','scripts','styles','templates','LICENSE','README.md'],'dist/ajudamestre.zip');
-await archive(['companion','package.json','README.md','LICENSE'],'dist/ajudamestre-conector.zip');
+await archive(['companion','studio','scripts','package.json','package-lock.json','README.md','LICENSE','THIRD_PARTY_NOTICES.md'],'dist/ajudamestre-conector.zip');
 await writeFile('dist/module.json',await readFile('module.json'));

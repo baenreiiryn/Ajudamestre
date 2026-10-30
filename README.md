@@ -2,11 +2,11 @@
 
 Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **Daggerheart**. Converse em português para criar, editar e organizar seu mundo, traduzir compêndios livremente e preparar macros.
 
-**Versão 0.1.2 — alpha.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
+**Versão 0.2.0 — alpha, com Audio Studio para Windows.** Alvo Foundry 13/14. A suíte automatizada cobre as regras do módulo e do conector com doubles na fronteira Foundry/OpenAI; ainda é necessário validar dentro do Foundry licenciado e concluir um login real. O campo `verified` do manifesto foi intencionalmente omitido até essa validação. Este projeto não inclui conteúdo dos sistemas nem é afiliado à Foundry, OpenAI, Wizards of the Coast ou Darrington Press.
 
 ## Instalar
 
-1. Baixe `ajudamestre.zip` na [versão v0.1.2](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.1.2), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
+1. Baixe `ajudamestre.zip` na [versão v0.2.0](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.0), extraia em `Data/modules/ajudamestre/` e confirme que `module.json` está diretamente nessa pasta.
 2. Alternativamente, após a publicação dos arquivos da versão, instale pelo manifesto: `https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json`.
 3. Ative **Ajudamestre** em Gerenciar módulos dentro de um mundo D&D 5e ou Daggerheart.
 4. O botão **Ajudamestre** aparece somente para o mestre. Também há Configurações → Configurações do módulo → Ajudamestre → Conexão e permissões.
@@ -15,37 +15,62 @@ Assistente privado do mestre para Foundry VTT, inicialmente para **D&D 5e** e **
 
 O módulo roda no navegador do mestre. O conector roda **no mesmo computador desse navegador**, mesmo quando o Foundry está hospedado em outra máquina. Ele cuida de OAuth e solicitações de IA, sem compartilhar os tokens do ChatGPT com o Foundry ou jogadores.
 
-Instale [Node.js 22 ou superior](https://nodejs.org/) e use uma das opções:
+A opção recomendada no Windows é baixar **Ajudamestre-Audio-Studio-0.2.0.exe** na [release](https://github.com/baenreiiryn/Ajudamestre/releases/tag/v0.2.0) e abrir o programa. Ele já inclui Node, FFmpeg e o conector. É portátil e ainda não tem assinatura digital. Se o conector antigo estiver aberto no terminal, encerre-o com Ctrl+C antes de abrir o aplicativo.
 
-- Clone este repositório e, na pasta do projeto, execute `npm start`.
-- Baixe `ajudamestre-conector.zip`, extraia e execute `node companion/server.mjs`. Não exige `npm install`.
+Em **Configurar**, informe o endereço do seu Foundry, por exemplo `https://foundryhidolax.duckdns.org/game`. O programa usa somente `https://foundryhidolax.duckdns.org` como origem autorizada. Mostre o código de pareamento e copie para o módulo; use `http://127.0.0.1:3210` como endereço do conector. Não encaminhe essa porta para a internet.
 
-No Windows também é possível abrir o PowerShell na pasta e rodar:
-
-```powershell
-node companion/server.mjs
-```
-
-Para um Foundry acessado por endereço diferente do padrão local, autorize a **origem exata** usada no navegador (protocolo, domínio e porta; sem caminho):
+Alternativa sem interface nativa: instale [Node.js 24.17 ou superior](https://nodejs.org/), clone o repositório (ou extraia `ajudamestre-conector.zip`) e execute na pasta:
 
 ```powershell
-node companion/server.mjs --origin https://minha-mesa.exemplo.com
+npm.cmd ci
+node companion/server.mjs --origin https://foundryhidolax.duckdns.org
 ```
 
-Pode repetir `--origin`. Nunca abra a porta do conector para a internet: ele escuta somente em `127.0.0.1`. A porta padrão é 3210; altere com `--port 3211` e atualize o endereço no módulo.
+Pode repetir `--origin`. O endereço aceita `/game` e normaliza a origem. A porta padrão é 3210; use `--port 3211` e ajuste o módulo se precisar mudar. O Studio também fica disponível em `http://127.0.0.1:3210/studio/` com o código do terminal.
 
-1. Copie o código de pareamento mostrado no terminal para a configuração do módulo. Esse código autoriza acesso local ao conector; mantenha-o privado.
+1. Copie o código de pareamento mostrado em Configurar no programa ou no terminal para a configuração do módulo. Esse código autoriza acesso local ao conector; mantenha-o privado.
 2. Clique **Continue with ChatGPT**, escolha a conta/workspace e autorize o uso do plano.
 3. Se o navegador bloquear a abertura automática, clique no link **Abrir login do ChatGPT** exibido no módulo. Se houver erro de conexão, ele aparece no topo da configuração e em uma notificação; confira pareamento, origem autorizada e permissão de rede local.
 4. Volte ao Foundry e clique **Atualizar conexão**.
 5. Selecione um modelo retornado para sua conta e salve.
-6. Mantenha o conector aberto enquanto usar a IA.
+6. Mantenha o programa/conector aberto enquanto usar a IA ou transmitir áudio.
 
 O login segue o [fluxo oficial SIWC para projetos OSS](https://developers.openai.com/siwc/token-sharing-open-source/sign-in). A elegibilidade da conta, os modelos e os limites são determinados pela OpenAI; entrar na conta não garante autorização de uso do plano. Não há troca automática para API paga. Você pode adicionar contas, selecionar registros separados e desconectar. Consulte [uso do plano](https://chatgpt.com/settings/usage).
 
 Navegadores podem pedir permissão de rede local, sobretudo se o Foundry usa HTTPS. Se a conexão for bloqueada, verifique essa autorização e a origem configurada. Não desative a segurança do navegador. O conector não inicia login automaticamente nem reutiliza credenciais do Codex ou de outros aplicativos.
 
 Dados locais do conector: `~/.ajudamestre/credentials.json`, com host estável, registros por conta e tokens. A pasta recebe permissões restritas (ACL no Windows, 0700/0600 no Unix), e o arquivo é substituído atomicamente. Não copie para o diretório público do Foundry nem para Git. Um lock impede dois conectores de renovar os mesmos tokens simultaneamente; após encerramento forçado, remova `~/.ajudamestre/running.lock` somente depois de verificar que o processo anterior terminou.
+
+## Audio Studio: PC, Foundry e Discord
+
+O programa mantém uma biblioteca local, pacotes por cenário e três canais: **trilha sonora**, **ambiente** e **efeitos/soundpads**, além do volume principal. Música e ambientes podem repetir; pads podem ser disparos ou loops. **Iniciar ambiente** toca apenas as trilhas contínuas do pacote. Clique nos pads quando quiser os efeitos. Há pausa e parada geral. Importe seus próprios arquivos ou use **Buscar sons** para baixar e validar antes de tocar.
+
+No Foundry, o botão **Áudio**, disponível ao mestre, abre o mesmo painel. Alterações feitas no programa ou nesse painel compartilham o estado do mixer no PC. O áudio segue do PC para o Discord; os jogadores não precisam carregar os arquivos no Foundry. O PC precisa permanecer ligado e o Discord ainda tem sua própria latência. Esta versão não encaminha automaticamente playlists ou sons de outros módulos: use os controles do Audio Studio. **Ouvir no PC** liga o monitor local; se você também estiver ouvindo o bot, poderá ouvir o áudio duas vezes.
+
+Para configurar o bot:
+
+1. No [Discord Developer Portal](https://discord.com/developers/applications), crie um aplicativo e um bot. Copie o token para **Configurar → Token do bot Discord** no programa. Nunca envie o token no chat.
+2. Informe o ID do aplicativo/bot para gerar o link **Convidar bot** e convide-o para seu servidor. Ele precisa somente de **Ver canal, Conectar e Falar** no canal escolhido; não precisa de Administrador nem de acesso às mensagens.
+3. Ative o modo de desenvolvedor do Discord, copie o ID do servidor e o ID de um canal de voz comum e salve no programa. Stage e chamadas privadas não são suportados.
+4. Clique **Entrar na call**. Só depois de aparecer **Discord na call** o mixer será transmitido. A conexão nunca é automática. **Sair** encerra o bot; o mixer pode continuar no PC. Se a conexão cair, os pads são interrompidos e é necessário reconectar pelo painel.
+
+O token fica em `~/.ajudamestre/audio/secrets.json`, com permissões restritas, e não é retornado pela API, enviado ao GPT ou incluído em pacotes. Arquivos, créditos e pacotes ficam em `~/.ajudamestre/audio/`. O aplicativo reaproveita um conector 0.2.0 compatível já aberto; fechar a janela só encerra o conector quando ela própria o iniciou.
+
+## Preparar pacotes com GPT
+
+Na aba **Assistente GPT**, conecte sua conta, atualize e escolha um modelo. No assistente do Foundry também estão disponíveis as ferramentas de áudio, sujeitas à categoria **Áudio** das permissões. Exemplo:
+
+> Crie um pacote para masmorra com ambiente contínuo, passos, sussurros e respiração estilo ASMR. Use loops nos sons que fizer sentido e deixe os efeitos prontos nos soundpads.
+
+O assistente pesquisa catálogos e inicia uma montagem em segundo plano. Os arquivos são baixados e validados no PC antes de entrar na biblioteca; **Preparação de pacotes** mostra andamento e sons faltantes. As buscas usam metadados, sem análise auditiva: confira o resultado pelo monitor e ajuste o pacote. Um pedido não garante que todos os efeitos gratuitos existam. O pacote pode ficar parcial e os itens ausentes são informados. Você pode complementar com arquivos locais.
+
+Fontes implementadas:
+
+- **Tabletop Audio:** faixas públicas com download explícito, música e ambiente combinados, com crédito e licença CC BY-NC-ND 4.0. SoundPads e conteúdo restrito/Patreon não são extraídos, pois não são liberados para uso fora do site. Veja as [condições oficiais](https://tabletopaudio.com/about.html).
+- **Wikimedia Commons:** áudios com licenças suportadas CC0, domínio público ou CC BY. A qualidade/relevância depende do acervo.
+- **Freesound:** opcional, configure sua chave de API. Importa previews disponíveis na API, identificados como previews, com licenças suportadas. Pode ampliar os resultados para efeitos específicos.
+
+A origem, o autor e a licença acompanham cada áudio. Nenhum áudio de terceiros é distribuído com o módulo ou executável. Respeite as condições de uso, inclusive a restrição não comercial do Tabletop Audio. O GPT só pode importar candidatos encontrados nos catálogos autorizados; não baixa URLs arbitrárias nem faz uma busca irrestrita em qualquer site.
 
 ## Abrir o assistente para um documento
 
@@ -133,11 +158,13 @@ A integração roda somente se seu módulo continua ativo e a categoria Integra�
 ## Desenvolvimento e verificação
 
 ```sh
+npm ci
 npm test
 npm run check
 npm run package
+npm run build:win
 ```
 
-Não há dependências de execução. Os ZIPs ficam em `dist/`; `ajudamestre.zip` contém o módulo e `ajudamestre-conector.zip` contém o conector. A CI executa os mesmos comandos. Veja o [roteiro de teste manual](docs/manual-validation.md) e a [arquitetura](docs/superpowers/specs/2026-10-27-ajudamestre-design.md).
+O módulo Foundry não tem dependências adicionais. O conector usa as dependências de áudio do `package-lock.json`. Os ZIPs ficam em `dist/` e o executável Windows em `desktop-dist/`; `ajudamestre.zip` contém o módulo e `ajudamestre-conector.zip` contém o conector. A CI executa os mesmos comandos. Veja o [roteiro de teste manual](docs/manual-validation.md) e a [arquitetura](docs/superpowers/specs/2026-10-27-ajudamestre-design.md).
 
 Referências: [Foundry API](https://foundryvtt.com/api/v13/), [D&D 5e](https://github.com/foundryvtt/dnd5e), [Daggerheart](https://github.com/Foundryborne/daggerheart), [SIWC Responses](https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference).

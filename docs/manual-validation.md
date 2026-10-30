@@ -24,3 +24,14 @@ Execute em mundos de teste, um D&D 5e e um Daggerheart, nas versões Foundry 13/
 - Testar item embutido de ator e item de compêndio com mesmo nome de outro documento do mundo. Apenas o UUID escolhido deve ser alterado.
 - Reabrir/atualizar ficha: sem ícones duplicados. Trocar alvo e remover pelo X. Durante tarefa, a troca deve ser recusada.
 - Jogador não vê ícone; ao perder papel de mestre, clique antigo não abre o assistente.
+
+
+## Audio Studio 0.2.0
+
+- Abrir EXE, configurar origem com /game, copiar pareamento; abrir Áudio no Foundry como mestre e confirmar que jogador não recebe o botão.
+- Importar uma música e dois efeitos; criar pacote; música/ambiente em loop, pad simples e pad em loop. Controlar volumes, pausa e parada nos dois painéis e conferir sincronização. Reabrir programa e conferir biblioteca, sem tocar automaticamente.
+- Configurar bot próprio, convidar com Ver canal/Conectar/Falar, entrar em canal comum e conferir música e efeitos simultâneos em outro cliente Discord; parar e sair. Testar token inválido, falta de permissões, queda e reconexão sem repetir pads antigos.
+- Ligar monitor PC opcional e conferir áudio local.
+- GPT: montar floresta sombria e masmorra com passos/sussurros/respiração; conferir downloads, créditos e indicação de itens ausentes. Testar chave Freesound opcional.
+- Tentar importar URL inventada, host não permitido, SoundPad restrito e arquivo inválido: devem falhar sem criar ativo reproduzível.
+- Reiniciar conector e conferir reconexão do painel; fechar app e conferir que FFmpeg/bot pertencentes ao app encerram.

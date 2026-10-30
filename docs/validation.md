@@ -18,3 +18,12 @@ Consulte manual-validation.md para os passos pendentes.
 ## Seleção contextual 0.1.2
 
 42 testes automatizados passando. Novos testes exercitam os hooks V1/V2, botão exclusivo do mestre, deduplicação, seleção de documento/pack, preservação de UUIDs embutidos/compêndios, troca/remoção de alvo e bloqueio durante uma tarefa. A fronteira DOM/Foundry é simulada; inspeção visual no Foundry real ainda não foi executada. A conversa recebe metadados do alvo apenas quando o mestre envia o pedido.
+
+
+## Audio Studio 0.2.0
+
+50 testes passaram em Node 24, incluindo FFmpeg real (loop, mistura música+pad, pausa/parada), persistência/créditos, limites de download e licença, API autenticada, estado SSE, comandos repetidos e permissões Foundry. Sintaxe/manifesto verificados. Interface Electron 45 real: sincronização, quatro canais, criação de pacote, configurações e ausência de overflow horizontal. Consultas reais Tabletop Audio e Commons retornaram candidatos licenciados.
+
+Pendente de ambiente/credenciais: login SIWC real, envio à call Discord real e integração visual com Foundry 13/14 e sistemas licenciados. Testes não demonstram qualidade artística dos candidatos encontrados nem garantem disponibilidade dos catálogos.
+
+Também verificados: download real de Forest: Night (14,4 MB), validação FFmpeg e saída PCM, com limpeza dos dados temporários; codificação PCM → Opus e carregamento DAVE.

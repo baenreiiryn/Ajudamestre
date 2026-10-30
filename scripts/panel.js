@@ -15,6 +15,7 @@ export class AssistantPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     super._onRender(context,options);
     const el=this.element;
     const clearTarget=el.querySelector('[data-action="clear-target"]');if(clearTarget)clearTarget.onclick=()=>{if(!this.busy){this.setTarget(null);this.render();}};
+    el.querySelector('[data-action="audio"]').onclick=()=>game.modules.get(ID).api.openAudio();
     el.querySelector('[data-action="settings"]').onclick=()=>this.openConfig();
     el.querySelector('[data-action="refresh"]').onclick=()=>this.refresh();
     el.querySelector('[data-action="history"]').onclick=()=>this.showHistory();

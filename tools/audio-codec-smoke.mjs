@@ -1,0 +1,10 @@
+import {PassThrough} from 'node:stream';
+import assert from 'node:assert/strict';
+import {createAudioResource,StreamType,generateDependencyReport} from '@discordjs/voice';
+import '@snazzah/davey';
+const input=new PassThrough();
+const resource=createAudioResource(input,{inputType:StreamType.Raw});
+const packet=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Opus não produziu um pacote.')),5000);resource.playStream.once('data',data=>{clearTimeout(timer);resolve(data);});resource.playStream.once('error',reject);});
+input.end(Buffer.alloc(3840*20));const encoded=await packet;assert(encoded.length>0);resource.playStream.destroy();
+console.log('PCM → Opus verificado; módulo DAVE carregado. '+encoded.length+' bytes no primeiro pacote.');
+console.log(generateDependencyReport());

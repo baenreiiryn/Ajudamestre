@@ -1,5 +1,62 @@
 {
-  "name": "ajudamestre", "version": "0.1.2", "private": true, "type": "module",
-  "engines": { "node": ">=22" },
-  "scripts": { "start": "node companion/server.mjs", "test": "node --test tests/*.test.mjs", "check": "node tools/check.mjs", "package": "node tools/package.mjs" }
+  "name": "ajudamestre",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.17.0"
+  },
+  "scripts": {
+    "start": "node companion/server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node tools/check.mjs",
+    "package": "node tools/package.mjs",
+    "desktop": "electron .",
+    "build:win": "electron-builder --win portable --publish never"
+  },
+  "main": "desktop/main.cjs",
+  "description": "Ajudamestre Audio Studio e integra\u00e7\u00e3o Foundry",
+  "author": "baenreiiryn",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "14.27.0",
+    "@discordjs/voice": "0.19.2",
+    "opusscript": "0.1.1",
+    "ffmpeg-static": "5.3.0"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.ajudamestre.studio",
+    "productName": "Ajudamestre Audio Studio",
+    "directories": {
+      "output": "desktop-dist"
+    },
+    "files": [
+      "companion/**/*",
+      "desktop/**/*",
+      "studio/**/*",
+      "scripts/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**/*",
+      "node_modules/@snazzah/**/*",
+      "node_modules/@snazzah+/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "artifactName": "Ajudamestre-Audio-Studio-${version}.exe"
+    },
+    "npmRebuild": false,
+    "portable": {
+      "requestExecutionLevel": "user"
+    }
+  }
 }

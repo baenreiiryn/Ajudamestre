@@ -1,0 +1,15 @@
+# Ajudamestre Audio Studio
+
+Pedido: ampliar o Ajudamestre com programa de PC, painel sincronizado no Foundry e bot de voz Discord. Música, ambiente e soundpads devem ser misturados no PC e enviados numa única conexão de voz, sem carregar áudios nos clientes dos jogadores. GPT pode buscar áudios gratuitos e preparar pacotes temáticos, incluindo efeitos pedidos explicitamente.
+
+Decisões de implementação: aplicativo Electron para Windows, usando o conector local existente como processo principal e armazenamento em ~/.ajudamestre/audio. Interface HTML/CSS/JS compartilhada com iframe GM-only no Foundry. Eventos SSE autenticados sincronizam estado. Node >=24.17; discord.js + @discordjs/voice com DAVE; FFmpeg decodifica apenas arquivos locais e produz PCM estéreo 48 kHz, misturado por relógio de 20 ms. Saída Discord única; monitor local opcional, sem capturar microfones/voz da call. O programa permanece aberto durante a sessão.
+
+Biblioteca: arquivos próprios importados e áudios baixados por provedores. Crédito, licença, URL de origem, tamanho e hash acompanham cada áudio. Pacotes contêm referências a áudio, canais, nomes de pads, loop e volume. Cache local persistente; sem fazer download no momento de apertar um pad. Limites de downloads, arquivos e vozes simultâneas; parada de emergência.
+
+Fontes: ambiências públicas de 10 minutos do Tabletop Audio (CC BY-NC-ND, uso pessoal não comercial; não importar SoundPads/áudio de Patreon). Wikimedia Commons (CC0, domínio público e CC BY; metadados de licença e autor). Freesound opcional com chave do usuário; usar previews públicos autorizados pelo catálogo e licença da gravação, identificados como previews. Descartar licenças ausentes ou não suportadas. Nenhum scraping de SoundPads ou conteúdo pago. Importação remota usa apenas candidatos verificados do catálogo; URLs não são inventadas pelo modelo.
+
+GPT: ferramentas de pesquisa, montagem assíncrona de pacote com slots temáticos, consulta de progresso, biblioteca e controles de áudio. Cada slot busca sua consulta específica e relata faltas; não fingir que passos equivalem a sussurros. O mesmo recurso existe na conversa do Foundry e no programa. A IA não acessa token Discord/chave Freesound, nem entra na call sozinha; conexão por ação explícita do mestre.
+
+Bot: credencial configurada no PC, nunca retornada por API nem gravada no mundo Foundry. Configuração de servidor/canal de voz, convite mínimo (View Channel, Connect, Speak), conexão/desconexão e erro claro. Testes não enviam áudio ao Discord do usuário. Teste real depende de token e convite do usuário.
+
+Validação: testes do mixer (camadas, loop, volumes, saturação e parada), store/catálogo/licença, download e jobs, protocolo HTTP autenticado e sincronização de estado, ferramentas GPT e consumo no Foundry. Testes reais com FFmpeg e fixture WAV para comprovar áudio não silencioso/efeitos em camadas. Compilar programa Windows e verificar arquivos empacotados; interface com motor real quando disponível. Declarar limites de teste Discord/Foundry sem credenciais.

@@ -1,5 +1,5 @@
 export const CATEGORIES = {
-  read:'Consultar mundo', documents:'Criar e editar documentos', compendiums:'Editar compêndios',
+  audio:'Áudio no PC e Discord', read:'Consultar mundo', documents:'Criar e editar documentos', compendiums:'Editar compêndios',
   scenes:'Cenas e elementos do mapa', combat:'Combate', chat:'Mensagens', macros:'Criar e editar macros',
   modules:'Consultar módulos', settings:'Alterar configurações de módulos', integrations:'Executar APIs de módulos',
   delete:'Excluir documentos', execute:'Executar macros (acesso amplo à sessão)', unlock:'Desbloquear compêndios'

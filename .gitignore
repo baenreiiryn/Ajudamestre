@@ -4,3 +4,5 @@ dist/
 *.log
 credentials.json
 host.json
+
+desktop-dist/

@@ -6,6 +6,7 @@ import {AssistantPanel,AssistantConfiguration,confirmAction} from './panel.js';
 import {registerSettings} from './settings.js';
 import {normalizeTarget} from './target.js';
 import {registerDocumentHeaders} from './document-header.js';
+import {AudioPanel} from './audio-panel.js';
 Hooks.once('init',()=>registerSettings(AssistantConfiguration));
 Hooks.once('ready',()=>{
   if(!game.user.isGM)return;
@@ -15,12 +16,16 @@ Hooks.once('ready',()=>{
   const resolve=uuid=>foundry.utils.fromUuid(uuid);
   const audit=new Audit({store:new HistoryStore(scope),resolve,getClass,diff:(a,b)=>foundry.utils.diffObject(a,b,{deletionKeys:true})});
   const executor=new FoundryTools({game,canvas,resolve,getClass,confirm:confirmAction,audit});
+  executor.audio={call:(name,args)=>bridge.call('/audio/tool',{name,args},AbortSignal.timeout(180000))};
+  const audioPanel=new AudioPanel({bridge});
+  const openAudio=async()=>{if(!game.user.isGM)return;await audioPanel.render({force:true});audioPanel.bringToFront();};
   const panel=new AssistantPanel({bridge,executor});
   const open=async({target}={})=>{if(!game.user.isGM)return;if(target)panel.setTarget(target);await panel.render({force:true});panel.bringToFront();void panel.refresh();return panel;};
   const openForDocument=async value=>{if(!game.user.isGM)return;const target=normalizeTarget(typeof value==='string'?await resolve(value):value);if(!target)throw Error('Documento não encontrado ou não suportado.');return open({target});};
   registerDocumentHeaders({hooks:Hooks,isGM:()=>game.user.isGM,open:openForDocument});
-  game.modules.get(ID).api={open,openForDocument,panel,registerIntegration:(id,integration)=>executor.registerIntegration(id,integration)};
+  game.modules.get(ID).api={open,openForDocument,openAudio,panel,registerIntegration:(id,integration)=>executor.registerIntegration(id,integration)};
   const button=document.createElement('button');button.id='ajudamestre-launcher';button.type='button';button.title='Abrir Ajudamestre';button.innerHTML='<i class="fas fa-hat-wizard" aria-hidden="true"></i> Ajudamestre';button.onclick=()=>{void open();};document.body.append(button);
+  const audioButton=document.createElement('button');audioButton.id='ajudamestre-audio-launcher';audioButton.type='button';audioButton.title='Abrir Audio Studio';audioButton.innerHTML='<i class="fas fa-headphones" aria-hidden="true"></i> Áudio';audioButton.onclick=()=>{void openAudio();};document.body.append(audioButton);
   Hooks.callAll('ajudamestreReady',game.modules.get(ID).api);
   if(!['dnd5e','daggerheart'].includes(game.system.id))ui.notifications.warn('Ajudamestre: este sistema ainda não possui adaptador específico.');
 });
