@@ -15,6 +15,9 @@ app.whenReady().then(async()=>{
   await new Promise(r=>setTimeout(r,500));assert.equal(runtime.audio.store.data.packs[0].name,'Masmorra de teste');
   await window.webContents.executeJavaScript(`document.getElementById('settings-open').click()`);await new Promise(r=>setTimeout(r,150));
   assert(await window.webContents.executeJavaScript(`document.getElementById('settings').open`));await window.webContents.executeJavaScript(`document.getElementById('settings-close').click()`);
+  const found=await runtime.audio.catalog.search('footsteps',{provider:'kenney'});const asset=await runtime.audio.candidate(found.results[0].id);assert.equal(asset.license,'CC0-1.0');
+  const pack=runtime.audio.store.data.packs[0];await runtime.audio.perform('save-pack',{...pack,slots:[{assetId:asset.id,name:'Passos de teste',bus:'sfx',loop:true,volume:.5}]});await new Promise(r=>setTimeout(r,150));
+  let audible=false;const listen=frame=>{if(frame.some(b=>b!==0))audible=true;};runtime.audio.mixer.on('frame',listen);await window.webContents.executeJavaScript("document.querySelector('.pad').click()");await new Promise(r=>setTimeout(r,500));assert(audible,'Pad empacotado não produziu PCM.');await window.webContents.executeJavaScript("document.querySelector('.pad').click()");await new Promise(r=>setTimeout(r,100));runtime.audio.mixer.off('frame',listen);assert.equal(runtime.audio.mixer.sources.size,0);
   const output=process.env.AM_SMOKE_SCREENSHOT||join(tmpdir(),'ajudamestre-studio-smoke.png');await writeFile(output,(await window.webContents.capturePage()).toPNG());
   assert.equal(errors.length,0,errors.join('\n'));console.log('Desktop real: sincronização, mixer, criação de pacote e diálogo de conexões verificados. Screenshot: '+output);
  }catch(e){console.error(e.stack);process.exitCode=1;}

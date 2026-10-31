@@ -2,7 +2,7 @@
   "id": "ajudamestre",
   "title": "Ajudamestre",
   "description": "Assistente privado do mestre com ChatGPT: documentos, cenas, comp\u00eandios, tradu\u00e7\u00f5es livres, m\u00f3dulos e macros. Conector local necess\u00e1rio. Audio Studio no PC e bot Discord.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "authors": [
     {
       "name": "baenreiiryn",
@@ -21,7 +21,7 @@
   ],
   "url": "https://github.com/baenreiiryn/Ajudamestre",
   "manifest": "https://raw.githubusercontent.com/baenreiiryn/Ajudamestre/main/module.json",
-  "download": "https://github.com/baenreiiryn/Ajudamestre/releases/download/v0.2.1/ajudamestre.zip",
+  "download": "https://github.com/baenreiiryn/Ajudamestre/releases/download/v0.2.2/ajudamestre.zip",
   "relationships": {
     "systems": [
       {

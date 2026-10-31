@@ -21,6 +21,8 @@ export class DiscordOutput extends EventEmitter {
    this.connection.on('error',()=>this.update({error:'Falha na conexão de voz. Confira permissões e DAVE.'}));
    await voice.entersState(this.connection,voice.VoiceConnectionStatus.Ready,20000);
    this.stream=new PassThrough({highWaterMark:3840*25});
+   // A short preroll absorbs Windows timer jitter before the first Opus packet.
+   this.stream.write(Buffer.alloc(3840*8));
    this.player=voice.createAudioPlayer({behaviors:{noSubscriber:voice.NoSubscriberBehavior.Play}});
    this.player.on('error',()=>this.update({error:'Erro ao codificar ou transmitir áudio. Confira Opus/DAVE.'}));
    this.player.play(voice.createAudioResource(this.stream,{inputType:voice.StreamType.Raw}));this.connection.subscribe(this.player);

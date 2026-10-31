@@ -10,4 +10,4 @@ Este projeto usa dependências externas distribuídas com seus próprios avisos 
 
 O mixer chama o executável FFmpeg em um processo separado. O código do Ajudamestre é MIT; as licenças de terceiros não são substituídas por essa licença.
 
-As gravações de áudio NÃO fazem parte da distribuição do programa. Cada arquivo importado pelo usuário mantém licença, autor e origem em sua biblioteca local. SoundPads e versões de Patreon do Tabletop Audio não são fornecidos. Os previews do Freesound são identificados como previews, não como originais completos.
+O programa inclui 181 efeitos originais de Kenney: RPG Audio e Impact Sounds, sob CC0 1.0. Origem: https://kenney.nl/assets/rpg-audio e https://kenney.nl/assets/impact-sounds . As licenças originais e os hashes por arquivo ficam em companion/audio/pads. As demais gravações de áudio não fazem parte da distribuição. Cada arquivo importado pelo usuário mantém licença, autor e origem em sua biblioteca local. SoundPads e versões de Patreon do Tabletop Audio não são fornecidos. Os previews do Freesound são identificados como previews, não como originais completos.

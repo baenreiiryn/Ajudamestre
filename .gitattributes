@@ -1,0 +1,3 @@
+# Preserve vendored audio and the original third-party license formatting.
+companion/audio/pads/*.ogg binary
+companion/audio/pads/LICENSE-*.txt -text whitespace=-blank-at-eol

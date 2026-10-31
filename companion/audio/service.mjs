@@ -23,7 +23,7 @@ export class AudioService extends EventEmitter {
   for(const emitter of [service.store,service.mixer,service.discord])emitter.on('change',()=>service.changed());service.mixer.on('notice',message=>{service.notice=message;service.changed();});service.mixer.start();return service;
  }
  changed(){this.revision++;this.emit('state',this.snapshot());}
- snapshot(){const library=this.store.snapshot();return {version:'0.2.1',instanceId:this.instanceId,revision:this.revision,...library,mixer:this.mixer.snapshot(),discord:this.discord.snapshot(),jobs:[...this.jobs.values()].slice(-12),notice:this.notice,activePackId:this.activePackId};}
+ snapshot(){const library=this.store.snapshot();return {version:'0.2.2',instanceId:this.instanceId,revision:this.revision,...library,mixer:this.mixer.snapshot(),discord:this.discord.snapshot(),jobs:[...this.jobs.values()].slice(-12),notice:this.notice,activePackId:this.activePackId};}
  async importStream(stream,name,{source='local',author='Arquivo do mestre',license='user'}={}){
   if(this.imports>=2)throw Error('Aguarde os downloads/importações em andamento.');this.imports++;
   const ext=extname(String(name)).toLowerCase();if(!['.mp3','.wav','.ogg','.oga','.opus','.flac','.m4a','.aac','.webm'].includes(ext)){this.imports--;throw Error('Formato de áudio não suportado.');}

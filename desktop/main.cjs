@@ -6,7 +6,7 @@ else {
  app.on('second-instance',()=>{if(window){if(window.isMinimized())window.restore();window.focus();}});
  app.whenReady().then(async()=>{
   try{
-   let existing;try{const data=JSON.parse(await fs.readFile(join(homedir(),'.ajudamestre','credentials.json'),'utf8'));const response=await fetch('http://127.0.0.1:3210/audio/state',{headers:{Authorization:`Bearer ${data.pairingKey}`},signal:AbortSignal.timeout(1500)});if(response.ok&&(await response.json()).version==='0.2.1')existing={port:3210,pairingKey:data.pairingKey};}catch{}
+   let existing;try{const data=JSON.parse(await fs.readFile(join(homedir(),'.ajudamestre','credentials.json'),'utf8'));const response=await fetch('http://127.0.0.1:3210/audio/state',{headers:{Authorization:`Bearer ${data.pairingKey}`},signal:AbortSignal.timeout(1500)});if(response.ok&&(await response.json()).version==='0.2.2')existing={port:3210,pairingKey:data.pairingKey};}catch{}
    if(existing)runtime=existing;else{const {startRuntime}=await import('../companion/server.mjs');runtime=await startRuntime();owned=true;}
    window=new BrowserWindow({width:1430,height:960,minWidth:940,minHeight:650,title:'Ajudamestre · Audio Studio',backgroundColor:'#10141c',show:false,webPreferences:{preload:join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
    window.setMenuBarVisibility(false);const origin=`http://127.0.0.1:${runtime.port}`;

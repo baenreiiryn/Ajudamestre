@@ -34,3 +34,10 @@ Também verificados: download real de Forest: Night (14,4 MB), validação FFmpe
 Reprodução real: response.output_item.done continha audio_build_pack concluída, mas response.completed.output estava vazio. O parser anterior descartava a ferramenta. O novo parser preserva itens concluídos, sua ordem e raciocínio completo, sem executar deltas nem aceitar resposta falha/incompleta.
 
 55 testes automatizados passaram. Teste com conexão ChatGPT real: o mesmo pedido de cidade em ruínas chamou audio_build_pack e recebeu mensagem final. O job criou pacote parcial com dois áudios e seis efeitos faltantes, explicitados no painel. Nenhuma reprodução nem conexão Discord foi iniciada pelo teste.
+
+
+## Áudio e efeitos 0.2.2
+
+61 testes passaram. A medição no aplicativo antigo do Windows produziu 994560 bytes em 8,0166 s, ou 5,18 s de áudio. O teste do relógio corrigido com codificação Opus produziu 8,02 s de áudio em 8,0022 s reais, 409 pacotes contando preroll e zero blocos descartados. Também há simulação determinística de callbacks a cada 31,25 ms e recuperação limitada após travamento.
+
+Pads: 181 arquivos CC0 originais de Kenney, licenças e SHA256 preservados. O teste offline importa e valida arquivos com FFmpeg e monta pacote com quatro efeitos sem chave. Sussurros/ASMR não existem nessa coleção e continuam sujeitos à disponibilidade das fontes externas.

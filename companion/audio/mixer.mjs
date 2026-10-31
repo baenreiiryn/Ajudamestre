@@ -16,7 +16,7 @@ export class FileDecoder {
  close(){this.closed=true;this.process.stdout.destroy();this.process.stderr.destroy();this.process.kill();this.chunks=[];this.bytes=0;}
 }
 export class PCMMixer extends EventEmitter {
- constructor({decoder=(file,opts)=>new FileDecoder(file,opts),ffmpeg}={}){super();this.decoder=decoder;this.ffmpeg=ffmpeg;this.sources=new Map();this.volumes={master:.8,music:.65,ambience:.6,sfx:.8};this.paused=false;this.timer=null;}
+ constructor({decoder=(file,opts)=>new FileDecoder(file,opts),ffmpeg}={}){super();this.decoder=decoder;this.ffmpeg=ffmpeg;this.sources=new Map();this.volumes={master:.8,music:.65,ambience:.6,sfx:.8};this.paused=false;this.timer=null;this.nextFrameAt=null;this.lateFrames=0;}
  addSource(source){if(this.sources.size>=24)throw Error('Limite de 24 sons simultâneos.');if(!BUSES.includes(source.bus))throw Error('Canal inválido.');this.sources.set(source.id,{volume:1,...source});this.emit('change');return source.id;}
  play(asset,file,{bus='sfx',loop=false,volume:gain=.7,slotId,packId}={}){
   if(!BUSES.includes(bus))throw Error('Canal inválido.');gain=volume(gain);if(bus==='music')this.stopBus('music');if(this.sources.size>=24)throw Error('Limite de 24 sons simultâneos.');
@@ -37,6 +37,11 @@ export class PCMMixer extends EventEmitter {
   }
   const output=Buffer.alloc(FRAME_BYTES);for(let i=0;i<sums.length;i++)output.writeInt16LE(Math.max(-32768,Math.min(32767,Math.round(sums[i]))),i*2);return output;
  }
- start(){if(this.timer)return;this.timer=setInterval(()=>this.emit('frame',this.renderFrame()),20);this.timer.unref?.();}
- close(){clearInterval(this.timer);this.timer=null;this.stopAll();this.removeAllListeners();}
+ advanceClock(now=performance.now()){
+  this.nextFrameAt??=now;let due=Math.max(0,Math.floor((now-this.nextFrameAt)/20)+1);
+  if(due>10){this.lateFrames+=due-10;this.nextFrameAt+=(due-10)*20;due=10;}
+  for(let i=0;i<due;i++){this.emit('frame',this.renderFrame());this.nextFrameAt+=20;}
+ }
+ start(){if(this.timer)return;this.nextFrameAt=performance.now();this.timer=setInterval(()=>this.advanceClock(),10);this.timer.unref?.();}
+ close(){clearInterval(this.timer);this.timer=null;this.nextFrameAt=null;this.stopAll();this.removeAllListeners();}
 }
